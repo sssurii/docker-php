@@ -12,7 +12,15 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN apt-get install libpng-dev libicu-dev libpq-dev libzip-dev zip wget git -y
 
 #Install php extensions
-RUN docker-php-ext-install pdo_mysql zip gd exif sockets bcmath
+RUN docker-php-ext-install pdo_mysql zip exif sockets bcmath
+
+#Install php GD extensions and dependency libraries
+RUN apt-get update && apt-get install -y \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libpng-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd
 
 #Install PostgreSQL extensions
 RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql && docker-php-ext-install pdo_pgsql pgsql
